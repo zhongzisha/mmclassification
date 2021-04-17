@@ -1,7 +1,9 @@
 # dataset settings
 dataset_type = 'GDLINE_Dataset'
 img_norm_cfg = dict(
-    mean=[123.675, 116.28, 103.53], std=[58.395, 57.12, 57.375], to_rgb=True)
+    mean=[125.307, 122.961, 113.8575],
+    std=[51.5865, 50.847, 51.255],
+    to_rgb=True)
 train_pipeline = [
     dict(type='LoadImageFromFile'),
     dict(type='RandomResizedCrop', size=224),
@@ -24,17 +26,14 @@ data = dict(
     workers_per_gpu=2,
     train=dict(
         type=dataset_type,
-        data_prefix='data/imagenet/train',
+        data_prefix='data/gd_line/',
+        ann_file='data/gd_line/train_list.txt',
         pipeline=train_pipeline),
     val=dict(
         type=dataset_type,
-        data_prefix='data/imagenet/val',
-        ann_file='data/imagenet/meta/val.txt',
-        pipeline=test_pipeline),
+        ann_file='data/gd_line/val_list.txt',
+        data_prefix='data/gd_line/', pipeline=test_pipeline),
     test=dict(
-        # replace `data/val` with `data/test` for standard test
         type=dataset_type,
-        data_prefix='data/imagenet/val',
-        ann_file='data/imagenet/meta/val.txt',
-        pipeline=test_pipeline))
-evaluation = dict(interval=1, metric='accuracy')
+        ann_file='data/gd_line/val_list.txt',
+        data_prefix='data/gd_line/', pipeline=test_pipeline))
