@@ -8,10 +8,12 @@ from .mnist import MNIST, FashionMNIST
 from .multi_label import MultiLabelDataset
 from .samplers import DistributedSampler
 from .voc import VOC
+from .gd_line_dataset import GDLINE_Dataset
 
 __all__ = [
     'BaseDataset', 'ImageNet', 'CIFAR10', 'CIFAR100', 'MNIST', 'FashionMNIST',
     'VOC', 'MultiLabelDataset', 'build_dataloader', 'build_dataset', 'Compose',
     'DistributedSampler', 'ConcatDataset', 'RepeatDataset',
-    'ClassBalancedDataset', 'DATASETS', 'PIPELINES'
+    'ClassBalancedDataset', 'DATASETS', 'PIPELINES',
+    'GDLINE_Dataset'
 ]
