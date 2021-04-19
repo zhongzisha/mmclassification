@@ -120,6 +120,9 @@ def main():
                       'meta data, use imagenet by default.')
         CLASSES = ImageNet.CLASSES
 
+    print('CLASSES', CLASSES)
+    CLASSES = ["nonline", "line"]
+
     if not distributed:
         model = MMDataParallel(model, device_ids=[0])
         model.CLASSES = CLASSES
