@@ -25,6 +25,15 @@ from yoloV5.myutils import load_gt_from_txt, load_gt_from_esri_xml, py_cpu_nms, 
 from yoloV5.utils.torch_utils import select_device, time_synchronized
 
 
+"""
+export PYTHONPATH=/media/ubuntu/Data/gd/:$PYTHONPATH
+python demo/detect_gd_line.py \
+--source /media/ubuntu/Data/gd_1024_aug_90_newSplit_4classes/val/val_list.txt \
+--checkpoint work_dirs/resnet34_b16x8_gd_line/latest.pth \
+--config configs/resnet/resnet34_b16x8_gd_line.py \
+--img-size 224 --gap 32
+"""
+
 def main():
     parser = ArgumentParser()
     parser.add_argument('--checkpoint', type=str, default='yolov5s.pt', help='model.pt path(s)')
@@ -163,23 +172,27 @@ def main():
                     pred_label = np.argmax(result, axis=1)
 
                     sub_preds.append(np.stack(pred_label))
-                import pdb
-                pdb.set_trace()
+                # import pdb
+                # pdb.set_trace()
                 sub_preds = np.concatenate(sub_preds)
-                pdb.set_trace()
+                # pdb.set_trace()
                 inds = np.where(sub_preds==1)[0]
-                pdb.set_trace()
+                # pdb.set_trace()
                 if len(inds) > 0:
                     for ind in inds:
                         x, y = dataset.start_positions[ind]
-                        final_mask[y+yoffset, x+xoffset] = 255
+                        y1 = y+yoffset
+                        y2 = y1 + 224
+                        x1 = x+xoffset
+                        x2 = x1 + 224
+                        final_mask[y1:y2, x1:x2] = 255
 
-                pdb.set_trace()
+                # pdb.set_trace()
                 del dataset.img0
                 del dataset
                 import gc
                 gc.collect()
-        mask_savefilename = file_prefix+".png"
+        mask_savefilename = file_prefix+"_LineCls_result.png"
         # cv2.imwrite(mask_savefilename, mask)
         cv2.imencode('.png', final_mask)[1].tofile(mask_savefilename)
 
