@@ -130,9 +130,6 @@ def main():
                       'meta data, use imagenet by default.')
         CLASSES = ImageNet.CLASSES
 
-    print('CLASSES', CLASSES)
-    CLASSES = ["nonline", "line"]
-
     if not distributed:
         if args.device == 'cpu':
             model = model.cpu()
