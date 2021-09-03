@@ -11,11 +11,12 @@ from .samplers import DistributedSampler
 from .voc import VOC
 from .gd_line_dataset import GDLINE_Dataset
 from .ganta_with_tower_state import GantaWithTowerStateDataset
+from .ganta import GantaDataset
 
 __all__ = [
     'BaseDataset', 'ImageNet', 'CIFAR10', 'CIFAR100', 'MNIST', 'FashionMNIST',
     'VOC', 'MultiLabelDataset', 'build_dataloader', 'build_dataset', 'Compose',
     'DistributedSampler', 'ConcatDataset', 'RepeatDataset',
     'ClassBalancedDataset', 'DATASETS', 'PIPELINES',
-    'GDLINE_Dataset', 'GantaWithTowerStateDataset'
+    'GDLINE_Dataset', 'GantaWithTowerStateDataset', 'GantaDataset'
 ]
