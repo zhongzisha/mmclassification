@@ -27,6 +27,13 @@ def test_cls_head(feat):
     losses = head.forward_train(feat, fake_gt_label)
     assert losses['loss'].item() > 0
 
+    # test ClsHead with weight
+    weight = torch.tensor([0.5, 0.5, 0.5, 0.5])
+
+    losses_ = head.forward_train(feat, fake_gt_label)
+    losses = head.forward_train(feat, fake_gt_label, weight=weight)
+    assert losses['loss'].item() == losses_['loss'].item() * 0.5
+
 
 @pytest.mark.parametrize('feat', [torch.rand(4, 3), (torch.rand(4, 3), )])
 def test_linear_head(feat):
@@ -116,7 +123,7 @@ def test_stacked_linear_cls_head(feat):
 
 
 def test_vit_head():
-    fake_features = torch.rand(4, 100)
+    fake_features = ([torch.rand(4, 7, 7, 16), torch.rand(4, 100)], )
     fake_gt_label = torch.randint(0, 10, (4, ))
 
     # test vit head forward

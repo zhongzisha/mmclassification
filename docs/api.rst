@@ -1,6 +1,3 @@
-API Reference
-=============
-
 mmcls.apis
 -------------
 .. automodule:: mmcls.apis
@@ -35,6 +32,11 @@ backbones
 necks
 ^^^^^^
 .. automodule:: mmcls.models.necks
+    :members:
+
+heads
+^^^^^^
+.. automodule:: mmcls.models.heads
     :members:
 
 losses
