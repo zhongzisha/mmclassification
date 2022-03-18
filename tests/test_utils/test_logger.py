@@ -5,7 +5,7 @@ import tempfile
 
 import mmcv.utils.logging
 
-from mmcls.utils import get_root_logger, load_json_logs
+from mmcls.utils import get_root_logger, load_json_log
 
 
 def test_get_root_logger():
@@ -28,19 +28,19 @@ def test_get_root_logger():
             assert message2 in lines[1]
 
         assert logger is logger2
+
+        handlers = list(logger.handlers)
+        for handler in handlers:
+            handler.close()
+            logger.removeHandler(handler)
         os.remove(log_path)
 
 
-def test_load_json_logs():
+def test_load_json_log():
     log_path = 'tests/data/test.logjson'
-    log_dicts = load_json_logs([log_path])
-
-    # test log_dicts
-    assert isinstance(log_dicts, list)
-    assert len(log_dicts) == 1
+    log_dict = load_json_log(log_path)
 
     # test log_dict
-    log_dict = log_dicts[0]
     assert set(log_dict.keys()) == set([1, 2, 3])
 
     # test epoch dict in log_dict
