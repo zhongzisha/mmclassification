@@ -22,6 +22,6 @@ __all__ = [
     'VOC', 'MultiLabelDataset', 'build_dataloader', 'build_dataset',
     'DistributedSampler', 'ConcatDataset', 'RepeatDataset',
     'ClassBalancedDataset', 'DATASETS', 'PIPELINES', 'ImageNet21k', 'SAMPLERS',
-    'build_sampler', 'RepeatAugSampler', 'KFoldDataset',, 'CUB', 'CustomDataset',
+    'build_sampler', 'RepeatAugSampler', 'KFoldDataset', 'CUB', 'CustomDataset',
     'GDLINE_Dataset', 'GantaWithTowerStateDataset', 'GantaDataset'
 ]
