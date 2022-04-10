@@ -9,67 +9,37 @@ import pickle
 
 import pdb
 
-LABEL_DICT = {
-    'nontower': 0,
-    'normal': 1,
-    'jieduan': 2,
-    'wanzhe': 3
-}
-data_root = '/media/ubuntu/SSD/ganta_patch_classification/'
-
-
-def extract_features(subset):
-
-
-    features = []
-    labels = []
-    for label_name, label in LABEL_DICT.items():
-        filenames = glob.glob(os.path.join(data_root, subset, label_name, '*.jpg'))
-        labels.append(label * np.ones((len(filenames),), dtype=np.uint8))
-        for filename in filenames:
-            print(filename)
-            image = cv2.imread(filename)
-            if len(image.shape) == 2:
-                image = cv2.cvtColor(image, cv2.COLOR_GRAY2BGR)
-            image = cv2.resize(image, (224, 224))
-            fd = hog(image, orientations=8, pixels_per_cell=(16, 16),
-                     cells_per_block=(1, 1), visualize=False, multichannel=True)
-            features.append(fd.reshape((1, -1)))
-
-    # pdb.set_trace()
-
-    features = np.concatenate(features)
-    labels = np.concatenate(labels)
-
-    # pdb.set_trace()
-
-    return features, labels
-
 
 if __name__ == '__main__':
+
+    LABEL_DICT = {
+        'nontower': 0,
+        'normal': 1,
+        'jieduan': 2,
+        'wanzhe': 3
+    }
+    data_root = '/media/ubuntu/SSD/ganta_ensemble/vgg16_b32x2_ganta_with_tower_state'
 
     save_root = '/media/ubuntu/SSD/ganta_ensemble/'
     os.makedirs(save_root, exist_ok=True)
 
-    fea_method = 'hog'
+    network = 'vgg16'
+    feat_name = 'fc2'  # conv5, fc1, fc2
     cls_method = 'adaboost'
 
-    fea_filename = os.path.join(save_root, fea_method + '.pkl')
-    if not os.path.exists(fea_filename):
-        trainX, trainY = extract_features(subset='train')
-        valX, valY = extract_features(subset='val')
-        with open(fea_filename, 'wb') as fp:
-            pickle.dump({
-                'trainX': trainX, 'trainY': trainY,
-                'valX': valX, 'valY': valY
-            }, fp)
-    else:
-        with open(fea_filename, 'rb') as fp:
-            datadict = pickle.load(fp)
-            trainX = datadict['trainX']
-            trainY = datadict['trainY']
-            valX = datadict['valX']
-            valY = datadict['valY']
+    with open(os.path.join(data_root, 'train_{}_feat.npz'.format(feat_name)), 'rb') as fp:
+        trainX = pickle.load(fp)
+    with open(os.path.join(data_root, 'train_gt_labels.npz'.format(feat_name)), 'rb') as fp:
+        trainY = pickle.load(fp)
+    with open(os.path.join(data_root, 'val_{}_feat.npz'.format(feat_name)), 'rb') as fp:
+        valX = pickle.load(fp)
+    with open(os.path.join(data_root, 'val_gt_labels.npz'.format(feat_name)), 'rb') as fp:
+        valY = pickle.load(fp)
+
+    trainN = trainX.shape[0]
+    valN = valX.shape[0]
+    trainX = trainX.reshape((trainN, -1))
+    valX = valX.reshape((valN, -1))
 
     for n_estimators in [100, 200, 300]:
         print('='*80)

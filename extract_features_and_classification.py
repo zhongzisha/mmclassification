@@ -28,15 +28,31 @@ except ImportError:
 
 """
 CONFIG=vgg16_b32x2_ganta_with_tower_state
-SUBSET=val
+CONFIG=resnet50_b32x2_ganta_with_tower_state
+for SUBSET in train val; do
+
 python extract_features_and_classification.py \
-/media/ubuntu/Temp/ganta_with_tower_state/${CONFIG}/${CONFIG}.py \
-/media/ubuntu/Temp/ganta_with_tower_state/${CONFIG}/latest.pth  \
+/media/ubuntu/SSD/ganta_with_tower_state/${CONFIG}/${CONFIG}.py \
+/media/ubuntu/SSD/ganta_with_tower_state/${CONFIG}/latest.pth  \
 --metrics accuracy \
---out /media/ubuntu/Temp/ganta_with_tower_state/${CONFIG}/${SUBSET}_results.pkl \
+--out /media/ubuntu/SSD/ganta_ensemble/${CONFIG}/${SUBSET}_results.pkl \
 --data_prefix data/ganta_with_tower_state/${SUBSET} \
 --save_prefix ${SUBSET} \
---show-dir /media/ubuntu/Temp/ganta_with_tower_state/${CONFIG}/
+--show-dir /media/ubuntu/SSD/ganta_ensemble/${CONFIG}/
+
+done
+
+
+CONFIG=mobilenet_v3_large_ganta_with_tower_state
+SUBSET=train
+python extract_features_and_classification.py \
+/media/ubuntu/SSD/ganta_with_tower_state/${CONFIG}/${CONFIG}.py \
+/media/ubuntu/SSD/ganta_with_tower_state/${CONFIG}/latest.pth \
+--out /media/ubuntu/SSD/ganta_ensemble/${CONFIG}/${SUBSET}_results.pkl \
+--data_prefix data/ganta_with_tower_state/${SUBSET} \
+--save_prefix ${SUBSET} \
+--show-dir /media/ubuntu/SSD/ganta_ensemble/${CONFIG}/
+
 """
 
 def parse_args():
@@ -158,6 +174,12 @@ def single_gpu_test(args,
     elif 'resnet34' in config_filename:
         pass
     elif 'resnet50' in config_filename:
+
+        model.module.neck.gap.register_forward_hook(get_activation('gap'))
+        features_dict = {
+            'gap_feat': [],
+        }
+
         pass
     elif 'resnet101' in config_filename:
         pass
@@ -172,6 +194,10 @@ def single_gpu_test(args,
     elif 'mobilenet_v2' in config_filename:
         pass
     elif 'mobilenet_v3' in config_filename:
+
+        model.module.neck.gap.register_forward_hook(get_activation('gap'))
+        features_dict = {'gap_feat': []}
+
         pass
     elif 'shufflenet_v1' in config_filename:
         pass
@@ -326,6 +352,10 @@ def main():
 
     rank, _ = get_dist_info()
     if rank == 0:
+
+        import pdb
+        pdb.set_trace()
+
         results = {}
         if args.metrics:
             eval_results = dataset.evaluate(outputs, args.metrics,
@@ -334,6 +364,11 @@ def main():
             for k, v in eval_results.items():
                 print(f'\n{k} : {v:.2f}')
         if args.out:
+            # save gt_labels
+            gt_labels = dataset.get_gt_labels()
+            with open(args.out.replace('_results.pkl', '_gt_labels.npz'), 'wb') as fp:
+                pickle.dump(gt_labels, fp)
+
             scores = np.vstack(outputs)
             pred_score = np.max(scores, axis=1)
             pred_label = np.argmax(scores, axis=1)
