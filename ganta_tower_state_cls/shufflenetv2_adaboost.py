@@ -18,12 +18,12 @@ if __name__ == '__main__':
         'jieduan': 2,
         'wanzhe': 3
     }
-    data_root = '/media/ubuntu/SSD/ganta_ensemble/mobilenet_v3_large_ganta_with_tower_state'
+    data_root = '/media/ubuntu/SSD/ganta_ensemble/shufflenet_v2_1x_b64x16_linearlr_bn_nowd_ganta_with_tower_state'
 
     save_root = '/media/ubuntu/SSD/ganta_ensemble/'
     os.makedirs(save_root, exist_ok=True)
 
-    network = 'mobilenetv3_large'
+    network = 'shufflenetv2'
     feat_name = 'gap'  # gap
 
     with open(os.path.join(data_root, 'train_{}_feat.npz'.format(feat_name)), 'rb') as fp:

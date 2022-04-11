@@ -53,6 +53,15 @@ python extract_features_and_classification.py \
 --save_prefix ${SUBSET} \
 --show-dir /media/ubuntu/SSD/ganta_ensemble/${CONFIG}/
 
+CONFIG=shufflenet_v2_1x_b64x16_linearlr_bn_nowd_ganta_with_tower_state
+SUBSET=train
+python extract_features_and_classification.py \
+/media/ubuntu/SSD/ganta_with_tower_state/${CONFIG}/${CONFIG}.py \
+/media/ubuntu/SSD/ganta_with_tower_state/${CONFIG}/latest.pth \
+--out /media/ubuntu/SSD/ganta_ensemble/${CONFIG}/${SUBSET}_results.pkl \
+--data_prefix data/ganta_with_tower_state/${SUBSET} \
+--save_prefix ${SUBSET} \
+--show-dir /media/ubuntu/SSD/ganta_ensemble/${CONFIG}/
 """
 
 def parse_args():
@@ -202,6 +211,10 @@ def single_gpu_test(args,
     elif 'shufflenet_v1' in config_filename:
         pass
     elif 'shufflenet_v2' in config_filename:
+
+        model.module.neck.gap.register_forward_hook(get_activation('gap'))
+        features_dict = {'gap_feat': []}
+
         pass
     else:
         print('has an error')
@@ -352,9 +365,6 @@ def main():
 
     rank, _ = get_dist_info()
     if rank == 0:
-
-        import pdb
-        pdb.set_trace()
 
         results = {}
         if args.metrics:

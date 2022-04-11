@@ -2,7 +2,7 @@ import pdb
 import sys,os,glob,cv2
 from skimage.feature import hog
 import numpy as np
-from sklearn.ensemble import AdaBoostClassifier
+from sklearn.ensemble import AdaBoostClassifier, RandomForestClassifier
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.metrics import confusion_matrix, classification_report
 import pickle
@@ -52,7 +52,7 @@ if __name__ == '__main__':
     os.makedirs(save_root, exist_ok=True)
 
     fea_method = 'hog'
-    cls_method = 'adaboost'
+    cls_method = 'rf'
 
     fea_filename = os.path.join(save_root, fea_method + '.pkl')
     if not os.path.exists(fea_filename):
@@ -71,45 +71,60 @@ if __name__ == '__main__':
             valX = datadict['valX']
             valY = datadict['valY']
 
-    for n_estimators in [100, 200, 300]:
-        print('='*80)
-        print('n_estimators: ', n_estimators)
-        #
-        print('Adaboost')
-        clf = AdaBoostClassifier(n_estimators=n_estimators, random_state=0)
-        clf.fit(trainX, trainY)
-        trainPred = clf.predict(trainX)
-        valPred = clf.predict(valX)
+    if cls_method == 'adaboost':
+        for n_estimators in [100, 200, 300]:
+            print('='*80)
+            print('n_estimators: ', n_estimators)
+            #
+            print('Adaboost')
+            clf = AdaBoostClassifier(n_estimators=n_estimators, random_state=0)
+            clf.fit(trainX, trainY)
+            trainPred = clf.predict(trainX)
+            valPred = clf.predict(valX)
 
-        print(confusion_matrix(trainY, trainPred))
-        print(classification_report(trainY, trainPred, target_names=list(LABEL_DICT.keys())))
-        print(confusion_matrix(valY, valPred))
-        print(classification_report(valY, valPred, target_names=list(LABEL_DICT.keys())))
+            print(confusion_matrix(trainY, trainPred))
+            print(classification_report(trainY, trainPred, target_names=list(LABEL_DICT.keys())))
+            print(confusion_matrix(valY, valPred))
+            print(classification_report(valY, valPred, target_names=list(LABEL_DICT.keys())))
 
-        #
-        print('SAMME.R')
-        bdt_real = AdaBoostClassifier(
-            DecisionTreeClassifier(max_depth=2), n_estimators=n_estimators, learning_rate=1
-        )
-        clf.fit(trainX, trainY)
-        trainPred = clf.predict(trainX)
-        valPred = clf.predict(valX)
-        print(confusion_matrix(trainY, trainPred))
-        print(classification_report(trainY, trainPred, target_names=list(LABEL_DICT.keys())))
-        print(confusion_matrix(valY, valPred))
-        print(classification_report(valY, valPred, target_names=list(LABEL_DICT.keys())))
+            #
+            print('SAMME.R')
+            bdt_real = AdaBoostClassifier(
+                DecisionTreeClassifier(max_depth=2), n_estimators=n_estimators, learning_rate=1
+            )
+            clf.fit(trainX, trainY)
+            trainPred = clf.predict(trainX)
+            valPred = clf.predict(valX)
+            print(confusion_matrix(trainY, trainPred))
+            print(classification_report(trainY, trainPred, target_names=list(LABEL_DICT.keys())))
+            print(confusion_matrix(valY, valPred))
+            print(classification_report(valY, valPred, target_names=list(LABEL_DICT.keys())))
 
-        print('SAMME')
-        bdt_discrete = AdaBoostClassifier(
-            DecisionTreeClassifier(max_depth=2),
-            n_estimators=n_estimators,
-            learning_rate=1.5,
-            algorithm="SAMME",
-        )
-        clf.fit(trainX, trainY)
-        trainPred = clf.predict(trainX)
-        valPred = clf.predict(valX)
-        print(confusion_matrix(trainY, trainPred))
-        print(classification_report(trainY, trainPred, target_names=list(LABEL_DICT.keys())))
-        print(confusion_matrix(valY, valPred))
-        print(classification_report(valY, valPred, target_names=list(LABEL_DICT.keys())))
+            print('SAMME')
+            bdt_discrete = AdaBoostClassifier(
+                DecisionTreeClassifier(max_depth=2),
+                n_estimators=n_estimators,
+                learning_rate=1.5,
+                algorithm="SAMME",
+            )
+            clf.fit(trainX, trainY)
+            trainPred = clf.predict(trainX)
+            valPred = clf.predict(valX)
+            print(confusion_matrix(trainY, trainPred))
+            print(classification_report(trainY, trainPred, target_names=list(LABEL_DICT.keys())))
+            print(confusion_matrix(valY, valPred))
+            print(classification_report(valY, valPred, target_names=list(LABEL_DICT.keys())))
+    elif cls_method == 'rf':
+        for n_estimators in [100, 200, 300]:
+            print('='*80)
+            print('n_estimators: ', n_estimators)
+            clf = RandomForestClassifier(n_estimators=n_estimators,
+                                         max_depth=5,
+                                         random_state=0)
+            clf.fit(trainX, trainY)
+            trainPred = clf.predict(trainX)
+            valPred = clf.predict(valX)
+            print(confusion_matrix(trainY, trainPred))
+            print(classification_report(trainY, trainPred, target_names=list(LABEL_DICT.keys())))
+            print(confusion_matrix(valY, valPred))
+            print(classification_report(valY, valPred, target_names=list(LABEL_DICT.keys())))
